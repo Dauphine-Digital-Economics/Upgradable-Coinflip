@@ -32,25 +32,31 @@ contract CoinflipUpgradeTest is Test {
         wrappedV1 = Coinflip(address(proxy));
     }
 
+    /////////////////////////////////////////////////////
+    ////      Test if V1 is initialized correctly    ////
+    /////////////////////////////////////////////////////
     function test_V1InitialSeed() public {
         assertEq(wrappedV1.seed(), "It is a good practice to rotate seeds often in gambling");
     }
 
-    function test_V2InitialSeed() public {
-        // Call the upgrade function with V2
-        wrappedV1.upgradeToAndCall(address(gameV2), "");
+    /////////////////////////////////////////////////////
+    ////  Test if proxy is pointing to V1 by         ////
+    ////              winning predictably            ////
+    /////////////////////////////////////////////////////
 
-        // Re-wrap with V2 implementation
-        wrappedV2 = CoinflipV2(address(wrappedV1));
-        assertEq(wrappedV2.seed(), "It is a good practice to rotate seeds often in gambling");
+    function test_V1Win() public {
+        assertEq(wrappedV1.UserInput([1,0,0,0,1,1,1,1,0,1]), true);
     }
 
-    function test_V2Seed() public {
+    /////////////////////////////////////////////////////
+    ////          Test seed rotation in V2           ////
+    /////////////////////////////////////////////////////
+    function test_Rotation() public {
         // Upgrade the proxy to V2 and wrap it
         wrappedV1.upgradeToAndCall(address(gameV2), "");
         wrappedV2 = CoinflipV2(address(proxy));
 
-        wrappedV2.seedRotation("1234567890");
+        wrappedV2.seedRotation("1234567890", 5);
         assertEq(wrappedV2.seed(), "6789012345");
     }
 
